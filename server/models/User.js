@@ -16,7 +16,8 @@ const PostModel = mongoose.model("postdetails",PostSchema);
 const NotificationSchema = new mongoose.Schema({
     title:{type:String,required:true,unique:true},
     description:{type:String,required:true},
-    brand:{type:String,required:true,unique:true}
+    brand:{type:String,required:true,unique:true},
+    createdAt: { type: Date, default: Date.now }, // Add this line
 
 })
 const NotificationModel = mongoose.model("notificationdetails",NotificationSchema);

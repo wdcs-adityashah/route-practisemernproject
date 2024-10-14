@@ -29,12 +29,19 @@ router.post('/users',async(req,res)=>{
 })
 
 router.get('/users', async (req, res) => {
+    const searchQuery = req.query.search || ''; 
+
     try {
-      const users = await Userdetails.find(); // Fetch all users
-      res.status(200).json(users);
+      const users = await Userdetails.find({
+        $or: [
+            { firstname: { $regex: searchQuery, $options: 'i' } }
+          ]
+      },'firstname'); // Fetch all users
       if (!users || users.length === 0) {
         return res.status(404).json({ message: "No users found" });
       }
+      res.status(200).json(users);
+
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).json({ message: 'Server error', error: error.message });
@@ -75,15 +82,21 @@ router.post('/post',async(req,res)=>{
     }
 })
 router.get('/post',async(req,res)=>{
+    const postQuery = req.query.search || '';
     try {
-        const posts = await PostDetails.find();
-        res.status(200).json(posts)
+        const posts = await PostDetails.find({
+            $or: [
+                { title: { $regex: postQuery, $options: 'i' } }
+              ]
+        });
         if(!posts || posts.length === 0){
             return res.status(404).json({ message: "No Posts found" });
         }
+        res.status(200).json(posts)
+
     } catch (error) {
-        console.error('Error during registeration:',err);
-        res.status(500).json({message:"Server error",error:err.message});
+        console.error('Error during registeration:',error);
+        res.status(500).json({message:"Server error",error:error.message});
     }
 })
 router.get('/postcount',async(req,res)=>{
@@ -119,18 +132,19 @@ router.post('/notification',async(req,res)=>{
     res.status(500).json({ message: "Server error", error: error.message });
     }
 })
-router.get('/notification',async(req,res)=>{
+router.get('/notification', async (req, res) => {
+    const searchQuery = req.query.query || '';
     try {
-        const notification = await NotificationDetails.find();
-        res.status(200).json(notification)
-        if(!notification || notification.length === 0){
-            return res.status(404).json({ message: "No notification found" });
-        }
+        const notifications = await NotificationDetails.find({
+            title: { $regex: searchQuery, $options: 'i' }
+        });
+        res.status(200).json(notifications);
     } catch (error) {
-        console.error('Error during registeration:',err);
-        res.status(500).json({message:"Server error",error:err.message});
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-})
+});
+
 router.get('/notificationcount',async(req,res)=>{
     try {
         const notificationcount = await NotificationDetails.countDocuments();
@@ -158,20 +172,24 @@ router.post('/product',async(req,res)=>{
         const savedProduct = await Product.save();
         res.status(201).json(savedProduct);
     } catch (error) {
-        console.error('Error during registration:', err);
-    res.status(500).json({ message: "Server error", error: err.message });
+        console.error('Error during registration:', error);
+    res.status(500).json({ message: "Server error", error: error.message });
     }
 })
 router.get('/product',async(req,res)=>{
+    const productQuery = req.query.search || '';
     try {
-        const product = await ProductDetails.find();
-        res.status(200).json(product)
+        const product = await ProductDetails.find({$or: [
+            { name: { $regex: productQuery, $options: 'i' } }
+          ]});
         if(!product || product.length === 0){
             return res.status(404).json({ message: "No Product found" });
         }
+        res.status(200).json(product)
+
     } catch (error) {
-        console.error('Error during registeration:',err);
-        res.status(500).json({message:"Server error",error:err.message});
+        console.error('Error during registeration:',error);
+        res.status(500).json({message:"Server error",error:error.message});
     }
 })
 router.get('/productcount',async(req,res)=>{
